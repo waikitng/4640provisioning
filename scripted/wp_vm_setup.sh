@@ -62,3 +62,5 @@ vboxmanage modifyvm ${vm_name}\
             --memory "${memory_mb}"
 
 vboxmanage startvm ${vm_name} --type gui
+
+vboxmanage --help

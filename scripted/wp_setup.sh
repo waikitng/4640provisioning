@@ -1,5 +1,7 @@
 #assume for this script that you are root user
 
+useradd admin -p P@ssw0rd
+
 setenforce 0
 sed -r -i 's/SELINUX=(enforcing|disabled)/SELINUX=permissive/' /etc/selinux/config
 
@@ -49,16 +51,12 @@ sed -i '41s/.*/group=nginx' /etc/php-fpm.d/www.conf
 systemctl start php-fpm
 systemctl enable php-fpm
 
-echo "##Wordpress Database Setup" > wp_mariadb_config.sql
-echo "CREATE DATABASE wordpress;" >> wp_mariadb_config.sql
-echo "CREATE USER wodpress_user@localhost IDENTIFIED BY 'P@ssw0rd';" >> wp_mariadb_config.sql
+echo "CREATE DATABASE wordpress;" > wp_mariadb_config.sql
+echo "CREATE USER wordpress_user@localhost IDENTIFIED BY 'P@ssw0rd';" >> wp_mariadb_config.sql
 echo "GRANT ALL PRIVILEGES ON wordpress.* TO wordpress_user@localhost;" >> wp_mariadb_config.sql
-echo "#Reload privilege tables" >> wp_mariadb_config.sql
 echo "FLUSH PRIVILEGES;" >> wp_mariadb_config.sql
 
 mysql -u root -p < wp_mariadb_config.sql
-
-vi /usr/share/nginx/html/info.php
 
 echo "<?php phpinfo(); ?>" > /usr/share/nginx/html/info.php
 
@@ -75,3 +73,9 @@ wget https://wordpress.org/latest.tar.gz
 tar xzvf latest.tar.gz
 
 cp wordpress/wp-config-sample.php wordpress/wp-config.php
+
+rsync -avP wordpress/ /usr/share/nginx/html/
+
+mkdir /usr/share/nginx/html/wp-content/uploads
+
+chown -R admin:nginx /usr/share/nginx/html/*

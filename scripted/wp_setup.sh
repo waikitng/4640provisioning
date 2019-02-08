@@ -56,17 +56,11 @@ echo "CREATE USER wordpress_user@localhost IDENTIFIED BY 'P@ssw0rd';" >> wp_mari
 echo "GRANT ALL PRIVILEGES ON wordpress.* TO wordpress_user@localhost;" >> wp_mariadb_config.sql
 echo "FLUSH PRIVILEGES;" >> wp_mariadb_config.sql
 
-mysql -u root -p < wp_mariadb_config.sql
+mysql -u root < wp_mariadb_config.sql
 
 echo "<?php phpinfo(); ?>" > /usr/share/nginx/html/info.php
 
 systemctl restart nginx
-
-mysql -u root -p < wp_mariadb_config.sql
-
-mysql -u root -e "SELECT user FROM mysql.user;"
-
-mysql -u root -e "SHOW DATABASES;"
 
 wget https://wordpress.org/latest.tar.gz
 

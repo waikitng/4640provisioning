@@ -81,7 +81,7 @@ echo "CREATE USER wordpress_user@localhost IDENTIFIED BY 'P@ssw0rd';" >> wp_mari
 echo "GRANT ALL PRIVILEGES ON wordpress.* TO wordpress_user@localhost;" >> wp_mariadb_config.sql
 echo "FLUSH PRIVILEGES;" >> wp_mariadb_config.sql
 
-mysql -u root < wp_mariadb_config.sql
+mysql -u root -p < wp_mariadb_config.sql
 
 
 wget https://wordpress.org/latest.tar.gz

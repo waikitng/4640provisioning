@@ -1,6 +1,6 @@
 vboxmanage () { VBoxManage.exe "$@"; }
 
-declare vm_name='acit4640'
+declare vm_name='acit4640_test'
 declare vm_folder='C:\Users\white\Documents\acit4640'
 declare size_in_mb=12800
 declare ctrlr_name='sorinaisamadgenius'
@@ -11,6 +11,7 @@ declare port_num=0
 declare device_num=0
 declare network_name="sys_net_prov"
 declare memory_mb=1280
+declare script_dir='C:\Users\white\Documents\acit4640\deliverables'
 
 #--------------acit4640 creation---------------
 
@@ -35,7 +36,7 @@ vboxmanage storageattach ${vm_name} \
             --type dvddrive \
             --medium ${iso_file_path}
 
-#-------ssd--------
+#-------------------ssd------------------------
 vboxmanage storageattach ${vm_name} \
             --storagectl "satacontroller" \
             --port $port_num \
@@ -56,12 +57,22 @@ vboxmanage modifyvm ${vm_name}\
             --cableconnected1 on\
             --audio none\
             --boot1 disk\
-            --boot2 dvd\
+            --boot2 net\
             --boot3 none\
             --boot4 none\
+            --macaddress1 020000000001\
             --memory "${memory_mb}"
 
 vboxmanage startvm ${vm_name} --type gui
 
-vboxmanage --help
+scp ${script_dir}/pxeboot/wp_ks.cfg pxe:/usr/share/nginx/html/
+scp -r ${script_dir}/setup pxe:/usr/share/nginx/html/
+ssh pxe 'sudo chown nginx:wheel /usr/share/nginx/html/wp_ks.cfg'
+ssh pxe 'chmod ugo+r /usr/share/nginx/html/wp_ks.cfg'
+ssh pxe 'chmod ugo+rx /usr/share/nginx/html/setup'
+ssh pxe 'chmod -R ugo+r /usr/share/nginx/html/setup/*'
 
+until [[ $(ssh -q wp exit && echo "online") == "online" ]] ; do
+  sleep 10s
+  echo "waiting for wp vm to come online"
+done

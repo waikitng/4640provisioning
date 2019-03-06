@@ -65,8 +65,8 @@ vboxmanage modifyvm ${vm_name}\
 
 vboxmanage startvm ${vm_name} --type gui
 
-scp ${script_dir}/pxeboot/wp_ks.cfg pxe:/usr/share/nginx/html/
-scp -r ${script_dir}/setup pxe:/usr/share/nginx/html/
+scp ./wp_ks.cfg pxe:/usr/share/nginx/html
+
 ssh pxe 'sudo chown nginx:wheel /usr/share/nginx/html/wp_ks.cfg'
 ssh pxe 'chmod ugo+r /usr/share/nginx/html/wp_ks.cfg'
 ssh pxe 'chmod ugo+rx /usr/share/nginx/html/setup'

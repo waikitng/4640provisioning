@@ -1,0 +1,100 @@
+  - hosts: all
+  tasks:
+    - name: Add repository
+    yum_repository:
+      name: epel
+      description: EPEL YUM repo
+      baseurl: https://download.fedoraproject.org/pub/epel/$releasever/$basearch/
+
+  - firewalld:
+    service: https
+    permanent: yes
+    state: enabled
+
+  - firewalld:
+    service: http
+    permanent: yes
+    state: enabled
+
+  - name: install nginx
+  package:
+    name: nginx
+    state: present
+
+  - name: Copying nginx config file
+  copy:
+    src: /provisioning/wp_setup_files/nginx.conf
+    dest: /etc/nginx.conf
+    owner: foo
+    group: foo
+    mode: u+rw,g-wx,o-rwx
+
+  - name: Start service nginx, if not started
+  service:
+    name: nginx
+    state: started
+  
+  - name: Enable service nginx, and not touch the state
+  service:
+    name: nginx
+    enabled: yes
+
+  - name: install php
+  package:
+    name: php
+    state: present
+
+  - name: Copying php config file
+  copy:
+    src: /provisioning/wp_setup_files/php.ini
+    dest: /etc/php.ini
+    owner: foo
+    group: foo
+    mode: u+rw,g-wx,o-rwx
+
+  - name: Start service php, if not started
+  service:
+    name: php
+    state: started
+  
+  - name: Enable service php, and not touch the state
+  service:
+    name: php
+    enabled: yes
+
+  - name: install php-fpm
+  package:
+    name: php-fpm
+    state: present
+
+  - name: Copying php-fpm file
+  copy:
+    src: /provisioning/wp_setup_files/www.conf
+    dest: /etc/www.conf
+    owner: foo
+    group: foo
+    mode: u+rw,g-wx,o-rwx
+
+  - name: Start service php-fpm, if not started
+  service:
+    name: php-fpm
+    state: started
+  
+  - name: Enable service php-fpm, and not touch the state
+  service:
+    name: php-fpm
+    enabled: yes
+
+  - name: install mariadb
+  package:
+    name: mariadb
+    state: present
+
+  - name: Run mariadb script
+  script: /provisioning/wp_setup_files/wp_mariadb_config.sql
+
+  - name: Extract wordpress into folder
+    unarchive:
+      src: https://wordpress.org/latest.tar.gz
+      dest: /home/admin/wordpress
+

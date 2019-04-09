@@ -1,0 +1,20 @@
+---
+# handlers file for nginx
+
+- firewalld:
+    service: https
+    permanent: yes
+    immediate: yes
+    state: enabled
+
+- firewalld:
+    service: http
+    permanent: yes
+    immediate: yes
+    state: enabled
+
+- name: Configuring nginx
+    service:
+    name: nginx
+    state: restarted
+    become: true

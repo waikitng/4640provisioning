@@ -1,116 +1,15 @@
 ---
-- hosts: wp
-  become: yes 
-  vars:
-    mysql_root_password: P@ssw0rd
-    mysql_root_password_update: yes
-
+- hosts: wordpress
   tasks:
-    - name: Add repository
-      yum_repository:
-        name: epel
-        description: EPEL YUM repo
-        baseurl: https://download.fedoraproject.org/pub/epel/$releasever/$basearch/
-
-    - firewalld:
-        service: https
-        permanent: yes
-        immediate: yes
-        state: enabled
-
-    - firewalld:
-        service: http
-        permanent: yes
-        immediate: yes
-        state: enabled
-
-    - name: copying files and moving to directories
-      copy: src=wp_setup_files/{{ item.0 }} dest={{ item.1 }} owner={{ ansible_user_id }} group={{ ansible_user_id }}
-      with_together:
-        - ['nginx.conf', 'www.conf', 'mariadb_security_config.sql', 'wp_mariadb_config.sql']
-        - ['/etc/nginx/nginx.conf','/etc/php-fpm.d/www.conf','/home/admin/mariadb_security_config.sql','/home/admin/wp_mariadb_config.sql']
-      become: true
-
-    - name: wp-server package install
-      yum: state=present name={{ item }}
-      with_items:
-      - php
-      - php-fpm
-      - php-mysql
-      - nginx
-      - mariadb-server
-      - mariadb
-      - mysql
-      - rsync
-      become: true
-
-    - name: Start service nginx, if not started
-      service:
+    - include_role: 
+        name: wordpress
         name: nginx
-        state: started
-    
-    - name: Enable service nginx, and not touch the state
-      service:
-        name: nginx
-        enabled: yes
-
-    - name: mariadb config
-      shell: mysql -u root -pP@ssw0rd < /home/admin/wp_mariadb_config.sql
-      become: true
-
-    - name: restarting mariadb again
-      service:
+        name: php
         name: mariadb
-        state: restarted
-      become: true
-
-    - name: sql security config
-      shell: mysql -u root < /home/admin/mariadb_security_config.sql
-      become: true
-
-    - name: restarting mariadb again
-      service:
-        name: mariadb
-        state: restarted
-      become: true
-
-    - name: Configuring nginx
-      service:
-        name: nginx
-        state: restarted
-      become: true
-
-    - name: php-fpm getting configured
-      service:
-        name: php-fpm
-        state: restarted
-      become: true
-
-    - name: Download wordpress
-      get_url:
-        url: https://wordpress.org/latest.tar.gz
-        dest: /home/admin/wordpress
-        mode: 0440
-
-    - name: unarchive wordpress
-      unarchive:
-        src: /home/admin/wordpress
-        dest: /home/admin/
-
-    - name: copying wp-config.php to wordpress
-      copy: src=wp_setup_files/wp-config.php dest=/home/admin/wordpress/wp-config.php
-      become: true
-
-    - name: Changing ownership
-      command: chown -R admin:nginx /usr/share/nginx/html
-      become: true
-
-    - name: making directory
-      command: mkdir -p /usr/share/nginx/html/wp-content/uploads
-      become: true
-
-    - name: rsync
-      command: rsync -avP /home/admin/wordpress/ /usr/share/nginx/html/
-      become: true
-...
-
+      vars:
+        mariadb_priv_user: root
+        mariadb_priv_user_passwd: P@ssw0rd
+        wordpress_db: wordpress
+        wordpress_db_user: wordpress_user
+        wordpress_db_user_passwd: P@ssw0rd
+... 

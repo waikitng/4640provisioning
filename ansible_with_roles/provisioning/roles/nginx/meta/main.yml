@@ -1,0 +1,17 @@
+galaxy_info:
+  author: Wai-kit Ng
+  description: installs nginx 
+
+  license: BSD
+
+  min_ansible_version: 2.1
+
+  platforms:
+  - name: EL
+    versions:
+      - 7
+    galaxy_tags: 
+     - centos
+     - nginx
+
+dependencies: []

@@ -1,0 +1,16 @@
+---
+# tasks file for php
+
+- name: wp-server package install
+yum: state=present name={{ item }}
+  with_items:
+  - php
+  - php-fpm
+  become: true
+
+- name: copying files and moving to directories
+  copy: src=wp_setup_files/{{ item.0 }} dest={{ item.1 }} owner={{ ansible_user_id }} group={{ ansible_user_id }}
+  with_together:
+    - ['nginx.conf', 'www.conf']
+    - ['/etc/nginx/nginx.conf','/etc/php-fpm.d/www.conf']
+  become: true

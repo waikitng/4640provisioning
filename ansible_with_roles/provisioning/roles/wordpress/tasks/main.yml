@@ -1,2 +1,47 @@
 ---
 # tasks file for wordpress
+
+- name: Download WordPress
+  get_url: 
+    url: https://wordpress.org/latest.tar.gz
+    dest: /usr/share/nginx/html/wordpress.tar.gz
+    force: yes
+
+- name: Extract archive
+  unarchive: 
+    src: /usr/share/nginx/html/wordpress.tar.gz
+    dest: /usr/share/nginx/html/
+    copy: no 
+    creates: /usr/share/nginx/html/wordpress
+
+- name: copying wp-config
+  copy:
+    src: ./roles/wordpress/files/wp-config.php
+    dest: /usr/share/nginx/html/wp-config.php
+    owner: admin
+    group: admin
+    mode: 0644
+
+- name: install rsync
+  package:
+    name: rsync
+    state: present
+
+- name: rsync script for mariadb
+  shell: rsync -avP /usr/share/nginx/html/wordpress/ /usr/share/nginx/html/
+
+- name: create wordress db
+  mysql_db:
+    login_user: "{{ mariadb_priv_user }}"
+    login_password: "{{ mariadb_priv_user_passwd }}"
+    name: "{{ wordpress_db }}"
+
+- name: create wordpress db user 
+  mysql_user: 
+    login_user: "{{ mariadb_priv_user }}"
+    login_password: "{{ mariadb_priv_user_passwd }}"
+    name: "{{ wordpress_db_user }}"
+    password: "{{ wordpress_db_user_passwd }}"
+    priv: "{{ wordpress_db }}.*:ALL"
+    state: present
+

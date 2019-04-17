@@ -1,18 +1,23 @@
 ---
 # tasks file for nginx
 
-- name: nginx package install
-      yum: state=present name={{ item }}
-      with_items:
-      - nginx
-      become: true
+- name: install nginx
+  package:
+    name: nginx
+    state: present
 
-- name: Start service nginx, if not started
+- name: copying config file for nginx
+  copy:
+    src: ./roles/nginx/files/nginx.conf
+    dest: /etc/nginx/nginx.conf
+    owner: admin
+    group: admin
+    mode: 0644
+
+- name: Start nginx
   service:
     name: nginx
     state: started
-
-- name: Enable service nginx, and not touch the state
-  service:
-    name: nginx
     enabled: yes
+
+...

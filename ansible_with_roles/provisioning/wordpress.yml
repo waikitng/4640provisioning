@@ -3,9 +3,6 @@
   tasks:
     - include_role: 
         name: wordpress
-        name: nginx
-        name: php
-        name: mariadb
       vars:
         mariadb_priv_user: root
         mariadb_priv_user_passwd: P@ssw0rd

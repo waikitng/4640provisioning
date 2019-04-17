@@ -1,8 +1,10 @@
 ---
 # handlers file for php
 
-- name: php-fpm getting configured
+- name: Restart php-fpm
   service:
     name: php-fpm
     state: restarted
-  become: true
+    enabled: yes
+    
+...

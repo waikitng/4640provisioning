@@ -1,16 +1,40 @@
 ---
 # tasks file for php
 
-- name: wp-server package install
-yum: state=present name={{ item }}
-  with_items:
-  - php
-  - php-fpm
-  become: true
+- name: install php
+  package:
+    name: php
+    state: present
 
-- name: copying files and moving to directories
-  copy: src=wp_setup_files/{{ item.0 }} dest={{ item.1 }} owner={{ ansible_user_id }} group={{ ansible_user_id }}
-  with_together:
-    - ['nginx.conf', 'www.conf']
-    - ['/etc/nginx/nginx.conf','/etc/php-fpm.d/www.conf']
-  become: true
+- name: install php-mysql
+  package:
+    name: php-mysql
+    state: present
+- name: install php-fpm
+  package:
+    name: php-fpm
+    state: present
+
+- name: copying config file for www.conf
+  copy:
+    src: ./roles/php/files/www.conf
+    dest: /etc/php-fpm.d/www.conf
+    owner: admin
+    group: admin
+    mode: 0644
+
+- name: copying config file for php.ini
+  copy:
+    src: ./roles/php/files/php.ini
+    dest: /etc/php.ini
+    owner: admin
+    group: admin
+    mode: 0644
+
+- name: Start php-fpm
+  service:
+    name: php-fpm
+    state: started
+    enabled: yes
+
+...

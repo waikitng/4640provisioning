@@ -1,0 +1,38 @@
+---
+- hosts: localhost
+  connection: local 
+  tags:
+    - provision
+  vars:
+    region: us-west-2
+
+    vpc_name: 4640_vpc_3
+    vpc_cidr: 172.16.0.0./16
+    subnet_cidr: 172.16.3.0/24
+    subnet_name: 4640_sn_web_3
+    igw_name: 4640_gw_3
+    rt_name: 4640_web_rt_3
+    default_cidr: 0.0.0.0/0
+    sg_name: 4640_web_sg_3
+    sg_description: Allow http, https, and ssh access from bcit and home
+    bcit_cidr: 172.16.0.0/16
+    ami_id: ami-d2c924b2
+    ec2_instance_name: ec2.py
+    ec2_instance_type: t2.micro
+    ec2_instance_group: $as_specified
+    ssh_key_name: $Oregon-2.pem
+
+  roles:
+    - { role: roles/vpc_setup }
+    - { role: roles/sg_setup }
+    - { role: roles/ec2_setup }
+    - { role: roles/eid_setup }
+
+- hosts: tag_group_wordpress
+  vars:
+    ansible_user: centos
+  tags:
+    - configure
+  roles:
+    - wordpress
+...

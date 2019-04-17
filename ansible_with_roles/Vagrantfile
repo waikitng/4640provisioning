@@ -6,36 +6,29 @@ Vagrant.configure("2") do |config|
   #General configuration
   config.ssh.username = "admin"
   config.ssh.private_key_path = "./acit_admin_id_rsa"
-  
+
   #Specifiy the base box here
   config.vm.box = "centos_base"
 
   #VM specific configuration
   #see : https://www.vagrantup.com/docs/multi-machine/
-  config.vm.define "acit4640" do |acit4640|
-    acit4640.vm.hostname = "acit4640"
-    acit4640.vm.network "forwarded_port", guest: 443, host: 50443
-    acit4640.vm.network "forwarded_port", guest: 22, host: 50022
-    acit4640.vm.network "forwarded_port", guest: 80, host: 50080
-
+  config.vm.define "machine_name" do |machine_name|
+    machine_name.vm.hostname = "wp.snp.acit"
+    machine_name.vm.network "forwarded_port", guest: 443, host: 50443
+    machine_name.vm.network "forwarded_port", guest: 22, host: 50022
+    machine_name.vm.network "forwarded_port", guest: 80, host: 50080
     #other machine configuration items go here
-    acit4640.vm.provider "virtualbox" do |vb|
-      vb.gui = true
+    machine_name.vm.provider "virtualbox" do |vb|
       vb.linked_clone = true
       #all other provider configuration items go here
-      vb.name = "vagrant_VM"
-      vb.customize [
-        "modifyvm" , :id,
-        "--cpus", "1",
-        "--memory", "1280",
-      ]
     end
   end
-   config.vm.provision "file", source: "./setup", destination: "/home/admin/"
 
-  #General provisioning Configuration 
-  config.vm.provision "shell" do |shell|
-    #path if relative is relative to the Vagrantfile
-    shell.path = "./setup/wp_setup.sh"
+  config.vm.provision :ansible do |ansible|
+    #playbook path is relative to the Vagrantfile
+    ansible.playbook = "provisioning/wordpress.yml"
+    ansible.inventory_path = "provisioning/hosts"
   end
+
+
 end
